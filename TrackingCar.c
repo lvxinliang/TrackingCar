@@ -5,10 +5,10 @@ const int ANALOG_MAX_VAL = 255;
 /*
  * 每个电机需要两个GPIO控制
  */
-const int leftWheelPin1 = 3;
-const int leftWheelPin2 = 5;  // PWM Pin
-const int rightWheelPin1 = 6;
-const int rightWheelPin2 = 9;  // PWM Pin
+const int leftWheelPin1 = 13;
+const int leftWheelPin2 = 11;  // PWM Pin
+const int rightWheelPin1 = 12;
+const int rightWheelPin2 = 3;  // PWM Pin
 
 /*
  * 左侧轮子
@@ -36,15 +36,15 @@ const int STOP = 0;
  * 控制单个电机
  */
 void setMotor(int pin, int pwmPin, int motorState, int speed) {
-	if(motorState == 1) {  
+	if(motorState == FORWARD) {
+		analogWrite(pwmPin, ANALOG_MAX_VAL - speed);
+		digitalWrite(pin, HIGH);
+	} else if (motorState == BACK) {
 		analogWrite(pwmPin, speed);
-		digitalWrite(pin, 1);
-	} else if (motorState == 2) {
-		analogWrite(pwmPin, speed);
-		digitalWrite(pin, 0);
-	} else if (motorState == 0) {
+		digitalWrite(pin, LOW);
+	} else if (motorState == STOP) {
 		analogWrite(pwmPin, 0);
-		digitalWrite(pin, 0);
+		digitalWrite(pin, LOW);
 	}
 }
 
@@ -60,7 +60,7 @@ void setWheel(int wheel, int motorState, int speed) {
 		pin = rightWheelPin1;
 		pwmPin = rightWheelPin2;
 	}
-	setMotor(int pin, int pwmPin, motorState, speed);
+	setMotor(pin, pwmPin, motorState, speed);
 }
 
 /*
@@ -128,6 +128,7 @@ void setup() {
  */
 void loop() {
 
+  runFoward(0);
 }
 
 /*
@@ -135,14 +136,18 @@ void loop() {
  */
 void test1() {
 	runFoward(250);
+	Serial.println("runFoward");
 	delay(2000);
 	runBack(250);
+	Serial.println("runBack");
 	delay(2000);
 
 	runLeft(100);
-	delay(1000);
+	Serial.println("runLeft");
+	delay(2000);
 	runRight(100);
-	delay(1000);
+	Serial.println("runRight");
+	delay(2000);
 
 	stopCar();
 	delay(10000);
