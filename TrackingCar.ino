@@ -1,3 +1,9 @@
+/***************************************************
+ * Title: 障碍赛小车代码
+ * Author: lvxinliang
+ * Date: 2016-07-11
+ **************************************************/
+
 /**
  * 电机驱动数字引脚
  * 左边电机
@@ -9,10 +15,19 @@ int BRAKEA = 9;   //BRAKEA
  * 电机驱动数字引脚
  * 右边电机
  */
-int E2 = 11;  //PWMB             
+int E2 = 11;  //PWMB
 int M2 = 13;  //DIRB
 int BRAKEB = 8;   //BRAKEB
 
+/**
+ * 设定超声波引脚
+ */
+const int TrigPin = 12;
+const int EchoPin = 10;
+/**
+ * 小车距离前方20cm进入避障程序
+ */
+const int MIN_DIST = 20;
 /**
  * 传感器引脚定义
  */
@@ -22,28 +37,169 @@ int SensorC = 6;
 int SensorD = 7;
 
 /**
+ * 获取小车距离障碍的距离
+ */
+int getDist() {
+    // 产生一个10us的高脉冲去触发TrigPin
+    digitalWrite(TrigPin, LOW);
+    delayMicroseconds(2);
+    digitalWrite(TrigPin, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(TrigPin, LOW);
+    return pulseIn(EchoPin, HIGH) / 58.00;
+}
+
+/**
+ * setMotor(int MOTORA,int MOTORB)参数说明：
+ * MOTORA>0,A电机正转,0<MOTORA<255
+ * MOTORA<0,A电机反转
+ * MOTORB>0,B电机正转,0<MOTORB<255
+ * MOTORB<0,B电机反转
+ */
+void setMotor(int MOTORA,int MOTORB) //电机驱动函数
+{
+    if(MOTORA>0) {
+      digitalWrite(BRAKEA,LOW);
+      digitalWrite(M1,LOW);     //正转
+      analogWrite(E1,255-MOTORA);
+    } else if(MOTORA<0) {
+      digitalWrite(BRAKEA,LOW);
+      digitalWrite(M1,HIGH);    //反转
+      analogWrite(E1,MOTORA+255);
+    } else {
+      digitalWrite(BRAKEA,HIGH);
+      digitalWrite(M1,HIGH);
+      analogWrite(E1,LOW);
+    }
+
+    if(MOTORB>0) {
+      digitalWrite(BRAKEB,LOW);
+      digitalWrite(M2,LOW);     //正转
+      analogWrite(E2,255-MOTORB);
+    } else if(MOTORB<0) {
+      digitalWrite(BRAKEB,LOW);
+      digitalWrite(M2,HIGH);      //反转
+      analogWrite(E2,255+MOTORB);
+    } else {
+      digitalWrite(BRAKEB,HIGH);
+      digitalWrite(M2,HIGH);
+      analogWrite(E2,LOW);
+    }
+}
+
+/**
+ * 躲避障碍代码
+ */
+void runAround() {
+    Serial.println("runAround.");
+    // 向左
+    setMotor(0,90);
+    delay(450);
+    // 向前
+    setMotor(100,100);
+    delay(1000);
+    // 向右
+    setMotor(90,0);
+    delay(250);
+    // 向前
+    setMotor(100,100);
+    delay(1000);
+    // 向右
+    setMotor(90,0);
+    delay(250);
+    // 向前
+    setMotor(100,100);
+    delay(1000);
+    // 向左
+    setMotor(0,90);
+    delay(450);
+    // 向前
+    setMotor(100,100);
+    delay(1000);
+}
+
+/**
  * 上电初始化
  */
-void setup() { 
-  pinMode(E1,OUTPUT);      //PIN模式
-  pinMode(M1,OUTPUT);
-  pinMode(E2,OUTPUT);
-  pinMode(M2,OUTPUT);
-  pinMode(BRAKEA,OUTPUT);
-  pinMode(BRAKEB,OUTPUT);
-  
-  pinMode(SensorA,INPUT);
-  pinMode(SensorB,INPUT);
-  pinMode(SensorC,INPUT);
-  pinMode(SensorD,INPUT);
-  
-  Serial.begin(9600);
+void setup() {
+    // 电机引脚配置
+    pinMode(E1,OUTPUT);
+    pinMode(M1,OUTPUT);
+    pinMode(E2,OUTPUT);
+    pinMode(M2,OUTPUT);
+    pinMode(BRAKEA,OUTPUT);
+    pinMode(BRAKEB,OUTPUT);
+
+    // 超声波模块引脚配置
+    pinMode(TrigPin, OUTPUT);
+    // 要检测引脚上输入的脉冲宽度，需要先设置为输入状态
+    pinMode(EchoPin, INPUT);
+
+    // 灰度传感器引脚配置
+    pinMode(SensorA,INPUT);
+    pinMode(SensorB,INPUT);
+    pinMode(SensorC,INPUT);
+    pinMode(SensorD,INPUT);
+
+    Serial.begin(9600);
+}
+
+/**
+ * 测试测距
+ */
+void loop5() {
+    int dist = getDist();
+    Serial.print("dist:");
+    Serial.println(dist);
+}
+
+void loop4() {
+    setMotor(100,100);
+    delay(1000);
+
+    runAround();
+
+    setMotor(0,0);
+    while(true){
+        delay(100000);
+    }
+}
+
+
+
+/**
+ * 测试避障
+ */
+void loop6() {
+    setMotor(95,80);
+    delay(50);
+    int dist = getDist();
+    if (dist < MIN_DIST) {
+        Serial.print("dist:");
+        Serial.println(dist);
+        runAround();
+
+        setMotor(0,0);
+        while(true){
+            delay(100000);
+        }
+    }
+}
+
+/**
+ * 测试直线
+ */
+void loop() {
+    setMotor(100,80);
+    while(true){
+        delay(100000);
+    }
 }
 
 /**
  * 测试电机
  */
-void loop(){
+void loop2(){
     setMotor(100,100);
     Serial.println("Forward");
     delay(2000);
@@ -59,84 +215,27 @@ void loop(){
  * 循环体,主函数
  */
 void loop1() {
-  char sensorA,sensorB,sensorC,sensorD;
-  sensorA = digitalRead(SensorA);
-  sensorB = digitalRead(SensorB);
-  sensorC = digitalRead(SensorC);
-  sensorD = digitalRead(SensorD);
-  
-  if(sensorA == 1)
-  {
-    setMotor(-50,50);
-    Serial.println("turnL100");
-  }
-  else if(sensorB == 1)
-  {
-    setMotor(-80,0);
-    Serial.println("turnL50");
-  }
-  else if(sensorC == 1)
-  {
-    setMotor(0,-80);
-    Serial.println("turnR50");
-  }
-  else if(sensorD == 1)
-  {
-    setMotor(50,-50);
-    Serial.println("turnR100");
-  }
-  else
-  {
-    setMotor(100,100);
-    Serial.println("Forward");
-  }
-}
-/********************************************************
-setMotor(int MOTORA,int MOTORB)参数说明：
-MOTORA>0,A电机正转,0<MOTORA<255
-MOTORA<0,A电机反转
-MOTORB>0,B电机正转,0<MOTORB<255
-MOTORB<0,B电机反转
-*********************************************************/
-void setMotor(int MOTORA,int MOTORB) //电机驱动函数
-{
-  if(MOTORA>0)
-  {
-    digitalWrite(BRAKEA,LOW);
-    digitalWrite(M1,LOW);     //正转
-    analogWrite(E1,255-MOTORA);
-  }
-  else if(MOTORA<0)
-  {
-    digitalWrite(BRAKEA,LOW);
-    digitalWrite(M1,HIGH);    //反转
-    analogWrite(E1,MOTORA+255);
-  }
-  else
-  {
-    digitalWrite(BRAKEA,HIGH);
-    digitalWrite(M1,HIGH);   
-    analogWrite(E1,LOW);
-  }
-  if(MOTORB>0)
-  {
-    digitalWrite(BRAKEB,LOW);
-    digitalWrite(M2,LOW);     //正转
-    analogWrite(E2,255-MOTORB);
-  }
-  else if(MOTORB<0)
-  {
-    digitalWrite(BRAKEB,LOW);
-    digitalWrite(M2,HIGH);      //反转
-    analogWrite(E2,255+MOTORB);
-  }
-  else
-  {
-    digitalWrite(BRAKEB,HIGH);
-    digitalWrite(M2,HIGH);  
-    analogWrite(E2,LOW);
-  }
-}
+    char sensorA,sensorB,sensorC,sensorD;
+    sensorA = digitalRead(SensorA);
+    sensorB = digitalRead(SensorB);
+    sensorC = digitalRead(SensorC);
+    sensorD = digitalRead(SensorD);
 
-
+    if(sensorA == 1){
+      setMotor(-50,50);
+      Serial.println("turnL100");
+    } else if(sensorB == 1) {
+      setMotor(-80,0);
+      Serial.println("turnL50");
+    } else if(sensorC == 1) {
+      setMotor(0,-80);
+      Serial.println("turnR50");
+    } else if(sensorD == 1) {
+      setMotor(50,-50);
+      Serial.println("turnR100");
+    } else {
+      setMotor(100,100);
+      Serial.println("Forward");
+    }
+}
 
