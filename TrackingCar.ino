@@ -55,35 +55,35 @@ int getDist() {
  * MOTORA<0,A电机反转
  * MOTORB>0,B电机正转,0<MOTORB<255
  * MOTORB<0,B电机反转
+ * 正负表示转向, 数值表示转速
  */
-void setMotor(int MOTORA,int MOTORB) //电机驱动函数
-{
-    if(MOTORA>0) {
-      digitalWrite(BRAKEA,LOW);
-      digitalWrite(M1,LOW);     //正转
-      analogWrite(E1,255-MOTORA);
-    } else if(MOTORA<0) {
-      digitalWrite(BRAKEA,LOW);
-      digitalWrite(M1,HIGH);    //反转
-      analogWrite(E1,MOTORA+255);
+void setMotor(int MOTORA, int MOTORB) {
+    if(MOTORA > 0) {
+      digitalWrite(BRAKEA, LOW);
+      digitalWrite(M1, LOW);     //正转
+      analogWrite(E1, MOTORA);
+    } else if(MOTORA < 0) {
+      digitalWrite(BRAKEA, LOW);
+      digitalWrite(M1, HIGH);    //反转
+      analogWrite(E1, MOTORA + 255);
     } else {
-      digitalWrite(BRAKEA,HIGH);
-      digitalWrite(M1,HIGH);
-      analogWrite(E1,LOW);
+      digitalWrite(BRAKEA, HIGH);
+      digitalWrite(M1, HIGH);
+      analogWrite(E1, LOW);
     }
 
-    if(MOTORB>0) {
-      digitalWrite(BRAKEB,LOW);
-      digitalWrite(M2,LOW);     //正转
-      analogWrite(E2,255-MOTORB);
-    } else if(MOTORB<0) {
-      digitalWrite(BRAKEB,LOW);
-      digitalWrite(M2,HIGH);      //反转
-      analogWrite(E2,255+MOTORB);
+    if(MOTORB > 0) {
+      digitalWrite(BRAKEB, LOW);
+      digitalWrite(M2, LOW);     //正转
+      analogWrite(E2, MOTORB);
+    } else if(MOTORB < 0) {
+      digitalWrite(BRAKEB, LOW);
+      digitalWrite(M2, HIGH);      //反转
+      analogWrite(E2, 255 + MOTORB);
     } else {
-      digitalWrite(BRAKEB,HIGH);
-      digitalWrite(M2,HIGH);
-      analogWrite(E2,LOW);
+      digitalWrite(BRAKEB, HIGH);
+      digitalWrite(M2, HIGH);
+      analogWrite(E2, LOW);
     }
 }
 
@@ -93,28 +93,28 @@ void setMotor(int MOTORA,int MOTORB) //电机驱动函数
 void runAround() {
     Serial.println("runAround.");
     // 向左
-    setMotor(0,90);
-    delay(450);
+    setMotor(0,165);
+    delay(300);
     // 向前
-    setMotor(100,100);
+    setMotor(180,210);
     delay(1000);
     // 向右
-    setMotor(90,0);
-    delay(250);
+    setMotor(165,0);
+    delay(300);
     // 向前
-    setMotor(100,100);
+    setMotor(180,210);
     delay(1000);
     // 向右
-    setMotor(90,0);
-    delay(250);
+    setMotor(165,0);
+    delay(300);
     // 向前
-    setMotor(100,100);
+    setMotor(180,210);
     delay(1000);
     // 向左
     setMotor(0,90);
-    delay(450);
+    delay(300);
     // 向前
-    setMotor(100,100);
+    setMotor(180,210);
     delay(1000);
 }
 
@@ -154,7 +154,7 @@ void loop5() {
 }
 
 void loop4() {
-    setMotor(100,100);
+    setMotor(180,210);
     delay(1000);
 
     runAround();
@@ -200,7 +200,7 @@ void loop() {
  * 测试电机
  */
 void loop2(){
-    setMotor(100,100);
+    setMotor(180,210);
     Serial.println("Forward");
     delay(2000);
     setMotor(0,80);
@@ -234,7 +234,7 @@ void loop1() {
       setMotor(50,-50);
       Serial.println("turnR100");
     } else {
-      setMotor(100,100);
+      setMotor(180,210);
       Serial.println("Forward");
     }
 }
