@@ -80,11 +80,7 @@ void setMotor(int MOTORA, int MOTORB) {
     } else if(MOTORA < 0) {
       digitalWrite(BRAKEA, LOW);
       digitalWrite(M1, HIGH);    //反转
-<<<<<<< HEAD
       analogWrite(E1, 0 - MOTORA);
-=======
-      analogWrite(E1, MOTORA + 255);
->>>>>>> f03547d524d47f8c815b29211c1eeace595a34e6
     } else {
       digitalWrite(BRAKEA, HIGH);
       digitalWrite(M1, HIGH);
@@ -98,11 +94,7 @@ void setMotor(int MOTORA, int MOTORB) {
     } else if(MOTORB < 0) {
       digitalWrite(BRAKEB, LOW);
       digitalWrite(M2, HIGH);      //反转
-<<<<<<< HEAD
       analogWrite(E2, 0 - MOTORB);
-=======
-      analogWrite(E2, 255 + MOTORB);
->>>>>>> f03547d524d47f8c815b29211c1eeace595a34e6
     } else {
       digitalWrite(BRAKEB, HIGH);
       digitalWrite(M2, HIGH);
@@ -116,7 +108,6 @@ void setMotor(int MOTORA, int MOTORB) {
 void runAround() {
     Serial.println("runAround.");
     // 向左
-<<<<<<< HEAD
     setMotor(-255,255);
     delay(DELAY_TIME);
     // 向前
@@ -139,30 +130,6 @@ void runAround() {
     delay(DELAY_TIME);
     // 向前
     setMotor(210,210);
-=======
-    setMotor(0,165);
-    delay(300);
-    // 向前
-    setMotor(180,210);
-    delay(1000);
-    // 向右
-    setMotor(165,0);
-    delay(300);
-    // 向前
-    setMotor(180,210);
-    delay(1000);
-    // 向右
-    setMotor(165,0);
-    delay(300);
-    // 向前
-    setMotor(180,210);
-    delay(1000);
-    // 向左
-    setMotor(0,90);
-    delay(300);
-    // 向前
-    setMotor(180,210);
->>>>>>> f03547d524d47f8c815b29211c1eeace595a34e6
     delay(1000);
 }
 
@@ -205,15 +172,7 @@ void loop5() {
     Serial.println(dist);
 }
 
-<<<<<<< HEAD
 void loop12() {
-=======
-void loop4() {
-    setMotor(180,210);
-    delay(1000);
-
-    runAround();
->>>>>>> f03547d524d47f8c815b29211c1eeace595a34e6
 
     // 
     setMotor(-255,-255);
@@ -289,11 +248,7 @@ void loop1() {
 /**
  * 测试电机
  */
-<<<<<<< HEAD
 void loop9(){
-=======
-void loop2(){
->>>>>>> f03547d524d47f8c815b29211c1eeace595a34e6
     setMotor(180,210);
     Serial.println("Forward");
     delay(2000);
@@ -351,10 +306,6 @@ void loop() {
       setMotor(-200,255);
       delay(DELAY_TIME);
     } else {
-<<<<<<< HEAD
-=======
-      setMotor(180,210);
->>>>>>> f03547d524d47f8c815b29211c1eeace595a34e6
       Serial.println("Forward");
       setMotor(150,150);
       delay(2);
