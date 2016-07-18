@@ -19,7 +19,7 @@ int E2 = 11;  //PWMB
 int M2 = 13;  //DIRB
 int BRAKEB = 8;   //BRAKEB
 
-const int DELAY_TIME = 350;
+const int DELAY_TIME = 250;
 
 /**
  * 设定超声波引脚
@@ -264,51 +264,51 @@ void loop9(){
  * 循环体,主函数
  */
 void loop() {
-//    sensor1 = digitalRead(Sensor1);
+    sensor1 = digitalRead(Sensor1);
     sensor2 = digitalRead(Sensor2);
     sensor3 = digitalRead(Sensor3);
     sensor4 = digitalRead(Sensor4);
     sensor5 = digitalRead(Sensor5);
     sensor6 = digitalRead(Sensor6);
     sensor7 = digitalRead(Sensor7);
+    sensor8 = digitalRead(Sensor8);
 
     if(sensor1 == BLACK){
       Serial.println("turn1R");
-      printSen();
-      setMotor(255, -200);
+      setMotor(150, -100);
       delay(DELAY_TIME);
     } else if(sensor2 == BLACK){
       Serial.println("turn2R");
-      setMotor(200, -200);
+      setMotor(100, -100);
       delay(DELAY_TIME);
     } else if(sensor3 == BLACK) {
       Serial.println("turn3R");
-      setMotor(200, -200);
+      setMotor(100, 50);
       delay(DELAY_TIME);
     } else if(sensor4 == BLACK) {
       Serial.println("turn4R");
-      setMotor(200, -200);
+      setMotor(150, 100);
       delay(DELAY_TIME);
     } else if(sensor5 == BLACK) {
       Serial.println("turn5L");
-      setMotor(-200,200);
+      setMotor(100,150);
       delay(DELAY_TIME);
     } else if(sensor6 == BLACK) {
       Serial.println("turn6L");
-      setMotor(-200,200);
+      setMotor(50,100);
       delay(DELAY_TIME);
     } else if(sensor7 == BLACK) {
       Serial.println("turn7L");
-      setMotor(-200,200);
+      setMotor(-100,100);
       delay(DELAY_TIME);
     } else if(sensor8 == BLACK) {
       Serial.println("turn8L");
-      setMotor(-200,255);
+      setMotor(-100,150);
       delay(DELAY_TIME);
     } else {
       Serial.println("Forward");
       setMotor(150,150);
-      delay(2);
+      delay(1);
     }
 }
 
