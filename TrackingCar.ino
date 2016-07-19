@@ -202,6 +202,10 @@ void loop14() {
     sensor6 = digitalRead(Sensor6);
     sensor7 = digitalRead(Sensor7);
     sensor8 = digitalRead(Sensor8);
+    printSensor();
+}
+
+void printSensor() {
     Serial.print("sensor1:");
     Serial.print(sensor1);
     Serial.print(",sensor2:");
@@ -264,19 +268,45 @@ void checkStop() {
     }
 }
 
+/**
+ * 检测左转90°
+ */
 void checkTurnLeft() {
-    if( leftTotalVal <=0 && rightTotalVal <=3) {  // 5个以上传感器检测到黑色
+    // 左侧至少有三个检测到黑线,并且右侧最多有一个检测到黑线
+    if( leftTotalVal <=1 && rightTotalVal >=3) {  // 5个以上传感器检测到黑色
         Serial.println("checkTurnLeft");
         setMotor(-200,200);
-        delay(2000);
+        delay(500);
+        while(true) {
+          sensorRead();
+          if(sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 == 5){
+              Serial.println("checkTurnLeft break.");
+              break;
+          }
+          setMotor(-200,200);
+          delay(10);
+        }
     }
 }
 
+/**
+ * 检测右转90°
+ */
 void checkTurnRight() {
-    if( rightTotalVal <=0 && leftTotalVal <=3) {  // 5个以上传感器检测到黑色
+    // 检测右边至少有三个sersor检测到黑线,并且左边最多有一个检测到黑线
+    if( rightTotalVal <=1 && leftTotalVal >=3) {
         Serial.println("checkTurnRight");
         setMotor(200,-200);
-        delay(2000);
+        delay(500);
+        while(true) {
+          sensorRead();
+          if(sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 == 5){
+              Serial.println("checkTurnRight break.");
+              break;
+          }
+          setMotor(200,-200);
+          delay(10);
+        }
     }
 }
 
@@ -301,10 +331,7 @@ void loop9(){
     delay(2000);
 }
 
-/**
- * 循环体,主函数
- */
-void loop() {
+void sensorRead() {
     sensor1 = digitalRead(Sensor1);
     sensor2 = digitalRead(Sensor2);
     sensor3 = digitalRead(Sensor3);
@@ -313,7 +340,53 @@ void loop() {
     sensor6 = digitalRead(Sensor6);
     sensor7 = digitalRead(Sensor7);
     sensor8 = digitalRead(Sensor8);
-    
+}
+
+void tracking() {
+    if(sensor1 == BLACK){
+      Serial.println("turn1R");
+      setMotor(250, -250);
+      delayMicroseconds(24);
+    } else if(sensor2 == BLACK){
+      Serial.println("turn2R");
+      setMotor(250, -250);
+      delayMicroseconds(16);
+    } else if(sensor3 == BLACK) {
+      Serial.println("turn3R");
+      setMotor(200, -200);
+      delayMicroseconds(8);
+    } else if(sensor4 == BLACK) {
+      Serial.println("turn4R");
+      setMotor(200, -200);
+      delayMicroseconds(4);
+    } else if(sensor5 == BLACK) {
+      Serial.println("turn5L");
+      setMotor(-200,200);
+      delayMicroseconds(4);
+    } else if(sensor6 == BLACK) {
+      Serial.println("turn6L");
+      setMotor(-200,200);
+      delayMicroseconds(8);
+    } else if(sensor7 == BLACK) {
+      Serial.println("turn7L");
+      setMotor(-250,250);
+      delayMicroseconds(16);
+    } else if(sensor8 == BLACK) {
+      Serial.println("turn8L");
+      setMotor(-250,250);
+      delayMicroseconds(24);
+    } else {
+      //Serial.println("Forward");
+      setMotor(150,150);
+      delayMicroseconds(1);
+    }
+}
+/**
+ * 循环体,主函数
+ */
+void loop() {
+    sensorRead();
+
     totalVal = sensor1 + sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 + sensor8;
     leftTotalVal = sensor5 + sensor6 + sensor7 + sensor8;
     rightTotalVal = sensor1 + sensor2 + sensor3 + sensor4;
@@ -324,44 +397,6 @@ void loop() {
 
     checkTurnRight();
 
-    //checkBack();
-
-    if(sensor1 == BLACK){
-      Serial.println("turn1R");
-      setMotor(250, -250);
-      delayMicroseconds(240);
-    } else if(sensor2 == BLACK){
-      Serial.println("turn2R");
-      setMotor(250, -250);
-      delayMicroseconds(160);
-    } else if(sensor3 == BLACK) {
-      Serial.println("turn3R");
-      setMotor(200, -200);
-      delayMicroseconds(80);
-    } else if(sensor4 == BLACK) {
-      Serial.println("turn4R");
-      setMotor(200, -200);
-      delayMicroseconds(40);
-    } else if(sensor5 == BLACK) {
-      Serial.println("turn5L");
-      setMotor(-200,200);
-      delayMicroseconds(40);
-    } else if(sensor6 == BLACK) {
-      Serial.println("turn6L");
-      setMotor(-200,200);
-      delayMicroseconds(80);
-    } else if(sensor7 == BLACK) {
-      Serial.println("turn7L");
-      setMotor(-250,250);
-      delayMicroseconds(160);
-    } else if(sensor8 == BLACK) {
-      Serial.println("turn8L");
-      setMotor(-250,250);
-      delayMicroseconds(240);
-    } else {
-      //Serial.println("Forward");
-      setMotor(150,150);
-      delayMicroseconds(2);
-    }
+    tracking();
 }
 
