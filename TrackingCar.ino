@@ -274,9 +274,10 @@ void checkStop() {
 void checkTurnLeft() {
     // 左侧至少有三个检测到黑线,并且右侧最多有一个检测到黑线
     if( leftTotalVal <=1 && rightTotalVal >=3) {  // 5个以上传感器检测到黑色
+        delayAndCheckBack();
         Serial.println("checkTurnLeft");
         setMotor(-200,200);
-        delay(500);
+        delay(600);
         while(true) {
           sensorRead();
           if(sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 == 5){
@@ -295,9 +296,11 @@ void checkTurnLeft() {
 void checkTurnRight() {
     // 检测右边至少有三个sersor检测到黑线,并且左边最多有一个检测到黑线
     if( rightTotalVal <=1 && leftTotalVal >=3) {
+        // 延时并检测是否是停车
+        delayAndCheckBack();
         Serial.println("checkTurnRight");
         setMotor(200,-200);
-        delay(500);
+        delay(600);
         while(true) {
           sensorRead();
           if(sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 == 5){
@@ -308,6 +311,15 @@ void checkTurnRight() {
           delay(10);
         }
     }
+}
+
+/**
+ * 延时并检测是否是停车
+ */
+void delayAndCheckBack() {
+    delayMicroseconds(1);
+    sensorRead();
+    checkStop();
 }
 
 void checkBack() {
@@ -346,7 +358,7 @@ void tracking() {
     if(sensor1 == BLACK){
       Serial.println("turn1R");
       setMotor(250, -250);
-      delayMicroseconds(24);
+      delayMicroseconds(32);
     } else if(sensor2 == BLACK){
       Serial.println("turn2R");
       setMotor(250, -250);
@@ -374,10 +386,10 @@ void tracking() {
     } else if(sensor8 == BLACK) {
       Serial.println("turn8L");
       setMotor(-250,250);
-      delayMicroseconds(24);
+      delayMicroseconds(32);
     } else {
       //Serial.println("Forward");
-      setMotor(150,150);
+      setMotor(200,200);
       delayMicroseconds(1);
     }
 }
