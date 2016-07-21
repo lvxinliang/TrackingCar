@@ -4,48 +4,52 @@
  * Date: 2016-07-11
  **************************************************/
 
+#include <Wire.h>
+#include <HMC5883L.h>
+
 /**
  * 电机驱动数字引脚
  * 左边电机
  */
-int E1 = 3;   //PWMA
-int M1 = 12;  //DIRA
-int BRAKEA = 9;   //BRAKEA
+const int E1 = 3;   //PWMA
+const int M1 = 12;  //DIRA
+const int BRAKEA = 9;   //BRAKEA
 /**
  * 电机驱动数字引脚
  * 右边电机
  */
-int E2 = 11;  //PWMB
-int M2 = 13;  //DIRB
-int BRAKEB = 8;   //BRAKEB
+const int E2 = 11;  //PWMB
+const int M2 = 13;  //DIRB
+const int BRAKEB = 8;   //BRAKEB
 
 const int DELAY_TIME = 250;
 
 /**
- * 设定超声波引脚
- */
-const int TrigPin = 12;
-const int EchoPin = 10;
-/**
  * 小车距离前方20cm进入避障程序
  */
 const int MIN_DIST = 20;
+
+/**
+ * 巡线模块通道个数
+ */
+const int SENSOR_CNT= 8;
 /**
  * 传感器引脚定义
  */
-int Sensor1 = 2;
-int Sensor2 = 4;
-int Sensor3 = 5;
-int Sensor4 = 6;
-int Sensor5 = 7;
-int Sensor6 = 16;
-int Sensor7 = 17;
-int Sensor8 = 18;
+const int Sensor1 = 2;
+const int Sensor2 = 4;
+const int Sensor3 = 5;
+const int Sensor4 = 6;
+const int Sensor5 = 7;
+const int Sensor6 = 10;
+const int Sensor7 = 16;
+const int Sensor8 = 17;
 /**
  * 传感器返回的颜色
  */
- const int WHITE = 1;
- const int BLACK = 0;
+const int WHITE = 1;
+const int BLACK = 0;
+ 
 /**
  * 定义传感器回传得到的数据
  */
@@ -58,19 +62,16 @@ int totalVal = 0;
 int leftTotalVal = 0;
 int rightTotalVal = 0;
 
-const int SENSOR_CNT= 8;
+/**
+ * 电子罗盘对象
+ */
+HMC5883L compass;
     
 /**
  * 获取小车距离障碍的距离
  */
 int getDist() {
-    // 产生一个10us的高脉冲去触发TrigPin
-    digitalWrite(TrigPin, LOW);
-    delayMicroseconds(2);
-    digitalWrite(TrigPin, HIGH);
-    delayMicroseconds(10);
-    digitalWrite(TrigPin, LOW);
-    return pulseIn(EchoPin, HIGH) / 58.00;
+    return 0;
 }
 
 /**
@@ -112,6 +113,62 @@ void setMotor(int MOTORA, int MOTORB) {
 }
 
 /**
+ * 初始化 HMC5883L芯片
+ */
+void compassSetup() {
+    Serial.println("Initialize HMC5883L");
+    while (!compass.begin()) {
+      Serial.println("Could not find a valid HMC5883L sensor, check wiring!");
+      delay(100);
+    }
+  
+    // 设置测量精度
+    compass.setRange(HMC5883L_RANGE_1_3GA);
+    // 设置测量模式
+    compass.setMeasurementMode(HMC5883L_CONTINOUS);
+    // 设置速率
+    compass.setDataRate(HMC5883L_DATARATE_30HZ);
+    // 设置采样率
+    compass.setSamples(HMC5883L_SAMPLES_8);
+    // 设置测量偏差(参见 HMC5883L_calibration.ino)
+    compass.setOffset(0, 0);
+}
+
+/**
+ * 获取电子罗盘的角度
+ * 电子罗盘X轴朝向正北,返回角度为0或360
+ */
+float getCompassDegress() {
+    Vector norm = compass.readNormalize();
+  
+    // Calculate heading
+    float heading = atan2(norm.YAxis, norm.XAxis);
+  
+    float declinationAngle = (4.0 + (26.0 / 60.0)) / (180 / M_PI);
+    heading += declinationAngle;
+  
+    // Correct for heading < 0deg and heading > 360deg
+    if (heading < 0) {
+      heading += 2 * PI;
+    }
+  
+    if (heading > 2 * PI) {
+      heading -= 2 * PI;
+    }
+  
+    // Convert to degrees
+    return heading * 180/M_PI;
+}
+
+/**
+ * 打印电子罗盘角度
+ */
+void printHeadingDegrees(double headingDegrees) {
+    Serial.print(headingDegrees);
+    Serial.println();
+}
+
+/**
  * 躲避障碍代码
  */
 void runAround() {
@@ -143,57 +200,9 @@ void runAround() {
 }
 
 /**
- * 上电初始化
+ * 读取寻线传感器值
  */
-void setup() {
-    // 电机引脚配置
-    pinMode(E1,OUTPUT);
-    pinMode(M1,OUTPUT);
-    pinMode(E2,OUTPUT);
-    pinMode(M2,OUTPUT);
-    pinMode(BRAKEA,OUTPUT);
-    pinMode(BRAKEB,OUTPUT);
-
-    // 超声波模块引脚配置
-    pinMode(TrigPin, OUTPUT);
-    // 要检测引脚上输入的脉冲宽度，需要先设置为输入状态
-    pinMode(EchoPin, INPUT);
-
-    // 灰度传感器引脚配置
-    pinMode(Sensor1,INPUT);
-    pinMode(Sensor2,INPUT);
-    pinMode(Sensor3,INPUT);
-    pinMode(Sensor4,INPUT);
-    pinMode(Sensor5,INPUT);
-    pinMode(Sensor6,INPUT);
-    pinMode(Sensor7,INPUT);
-    pinMode(Sensor8,INPUT);
-
-    Serial.begin(9600);
-}
-
-/**
- * 测试测距
- */
-void loop5() {
-    int dist = getDist();
-    Serial.print("dist:");
-    Serial.println(dist);
-}
-
-void loop12() {
-
-    // 
-    setMotor(-255,-255);
-    while(true){
-        delay(100000);
-    }
-}
-
-/**
- * 测试传感器读值
- */
-void loop14() {
+void sensorRead() {
     sensor1 = digitalRead(Sensor1);
     sensor2 = digitalRead(Sensor2);
     sensor3 = digitalRead(Sensor3);
@@ -202,9 +211,11 @@ void loop14() {
     sensor6 = digitalRead(Sensor6);
     sensor7 = digitalRead(Sensor7);
     sensor8 = digitalRead(Sensor8);
-    printSensor();
 }
 
+/**
+ * 打印寻线传感器值
+ */
 void printSensor() {
     Serial.print("sensor1:");
     Serial.print(sensor1);
@@ -226,45 +237,31 @@ void printSensor() {
 }
 
 /**
- * 测试避障
- */
-void loop6() {
-    setMotor(95,80);
-    delay(50);
-    int dist = getDist();
-    if (dist < MIN_DIST) {
-        Serial.print("dist:");
-        Serial.println(dist);
-        runAround();
-
-        setMotor(0,0);
-        while(true){
-            delay(100000);
-        }
-    }
-}
-void loop7() {
-    int sensor1 = digitalRead(Sensor1);
-    Serial.println(sensor1);
-}
-
-/**
- * 测试直线
- */
-void loop1() {
-    setMotor(180,210);
-    while(true){
-        delay(100000);
-    }
-}
-
-/**
  * 判断是否需要停止
  */
 void checkStop() {
     if( SENSOR_CNT - totalVal> 5) {  // 5个以上传感器检测到黑色
         setMotor(0,0);
         while(true);
+    }
+}
+
+/**
+ * 延时并检测是否是停车
+ */
+void delayAndCheckBack() {
+    delayMicroseconds(1);
+    sensorRead();
+    checkStop();
+}
+
+/**
+ * 检测是否要倒车
+ */
+void checkBack() {
+    if(SENSOR_CNT ==  totalVal) {  // 5个以上传感器检测到黑色
+        setMotor(-200,-200);
+        delay(2000);
     }
 }
 
@@ -314,46 +311,8 @@ void checkTurnRight() {
 }
 
 /**
- * 延时并检测是否是停车
+ * 自动快速寻线程序
  */
-void delayAndCheckBack() {
-    delayMicroseconds(1);
-    sensorRead();
-    checkStop();
-}
-
-void checkBack() {
-    if(SENSOR_CNT ==  totalVal) {  // 5个以上传感器检测到黑色
-        setMotor(-200,-200);
-        delay(2000);
-    }
-}
-/**
- * 测试电机
- */
-void loop9(){
-    setMotor(180,210);
-    Serial.println("Forward");
-    delay(2000);
-    setMotor(0,180);
-    Serial.println("turnL50");
-    delay(2000);
-    setMotor(180,0);
-    Serial.println("turnR50");
-    delay(2000);
-}
-
-void sensorRead() {
-    sensor1 = digitalRead(Sensor1);
-    sensor2 = digitalRead(Sensor2);
-    sensor3 = digitalRead(Sensor3);
-    sensor4 = digitalRead(Sensor4);
-    sensor5 = digitalRead(Sensor5);
-    sensor6 = digitalRead(Sensor6);
-    sensor7 = digitalRead(Sensor7);
-    sensor8 = digitalRead(Sensor8);
-}
-
 void tracking() {
     if(sensor1 == BLACK){
       Serial.println("turn1R");
@@ -393,6 +352,35 @@ void tracking() {
       delayMicroseconds(1);
     }
 }
+
+/**
+ * 上电初始化
+ */
+void setup() {
+    // 电机引脚配置
+    pinMode(E1,OUTPUT);
+    pinMode(M1,OUTPUT);
+    pinMode(E2,OUTPUT);
+    pinMode(M2,OUTPUT);
+    pinMode(BRAKEA,OUTPUT);
+    pinMode(BRAKEB,OUTPUT);
+
+    // 灰度传感器引脚配置
+    pinMode(Sensor1,INPUT);
+    pinMode(Sensor2,INPUT);
+    pinMode(Sensor3,INPUT);
+    pinMode(Sensor4,INPUT);
+    pinMode(Sensor5,INPUT);
+    pinMode(Sensor6,INPUT);
+    pinMode(Sensor7,INPUT);
+    pinMode(Sensor8,INPUT);
+
+    // 电子罗盘初始化
+    compassSetup();
+
+    Serial.begin(9600);
+}
+
 /**
  * 循环体,主函数
  */
@@ -411,4 +399,83 @@ void loop() {
 
     tracking();
 }
+
+//-----------------------------------------------TEST-----------------------------------------//
+/**
+ * 测试电子罗盘
+ */
+void loop15() {
+    printHeadingDegrees(getCompassDegress());
+    delay(1);
+}
+/**
+ * 测试避障
+ */
+void loop6() {
+    setMotor(95,80);
+    delay(50);
+    int dist = getDist();
+    if (dist < MIN_DIST) {
+        Serial.print("dist:");
+        Serial.println(dist);
+        runAround();
+
+        setMotor(0,0);
+        while(true){
+            delay(100000);
+        }
+    }
+}
+
+/**
+ * 测试直线
+ */
+void loop1() {
+    setMotor(210,210);
+    while(true){
+        delay(100000);
+    }
+}
+/**
+ * 测试电机
+ */
+void loop9(){
+    setMotor(180,210);
+    Serial.println("Forward");
+    delay(2000);
+    setMotor(0,180);
+    Serial.println("turnL50");
+    delay(2000);
+    setMotor(180,0);
+    Serial.println("turnR50");
+    delay(2000);
+}
+
+/**
+ * 测试测距
+ */
+void loop5() {
+    int dist = getDist();
+    Serial.print("dist:");
+    Serial.println(dist);
+}
+
+/**
+ * 测试倒车
+ */
+void loop12() {
+    setMotor(-255,-255);
+    while(true){
+        delay(100000);
+    }
+}
+
+/**
+ * 测试传感器读值
+ */
+void loop2() {
+    sensorRead();
+    printSensor();
+}
+
 
