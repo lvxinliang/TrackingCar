@@ -33,13 +33,13 @@ const int MIN_DIST = 20;
 /**
  * 传感器引脚定义
  */
-int Sensor1 = 16;
-int Sensor2 = 17;
-int Sensor3 = 2;
-int Sensor4 = 4;
-int Sensor5 = 5;
-int Sensor6 = 6;
-int Sensor7 = 7;
+int Sensor1 = 2;
+int Sensor2 = 4;
+int Sensor3 = 5;
+int Sensor4 = 6;
+int Sensor5 = 7;
+int Sensor6 = 16;
+int Sensor7 = 17;
 int Sensor8 = 18;
 /**
  * 传感器返回的颜色
