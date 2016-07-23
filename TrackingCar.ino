@@ -375,8 +375,10 @@ void setup() {
     pinMode(Sensor7,INPUT);
     pinMode(Sensor8,INPUT);
 
-    // 电子罗盘初始化
-    compassSetup();
+    // 电子罗盘初始化 传感器连接后打开该代码
+//    compassSetup();
+
+    pinMode(A0, INPUT);
 
     Serial.begin(9600);
 }
@@ -430,7 +432,8 @@ void loop6() {
 /**
  * 测试直线
  */
-void loop1() {
+void loop5() {
+    Serial.println("aaaaaaa");
     setMotor(210,210);
     while(true){
         delay(100000);
@@ -454,7 +457,7 @@ void loop9(){
 /**
  * 测试测距
  */
-void loop5() {
+void loop2() {
     int dist = getDist();
     Serial.print("dist:");
     Serial.println(dist);
@@ -473,9 +476,14 @@ void loop12() {
 /**
  * 测试传感器读值
  */
-void loop2() {
+void loop4() {
     sensorRead();
     printSensor();
 }
 
+void loop3() {
+    int val = analogRead(A0);
+    Serial.print("A0:");
+    Serial.println(val);
+}
 
