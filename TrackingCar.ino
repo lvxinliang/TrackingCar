@@ -27,7 +27,7 @@ const int DELAY_TIME = 250;
 /**
  * 小车距离前方20cm进入避障程序
  */
-const int MIN_DIST = 20;
+const int MIN_DIST = 10;
 
 /**
  * 巡线模块通道个数
@@ -44,6 +44,7 @@ const int Sensor5 = 7;
 const int Sensor6 = 10;
 const int Sensor7 = 16;
 const int Sensor8 = 17;
+
 /**
  * 传感器返回的颜色
  */
@@ -61,7 +62,11 @@ int sensor1, sensor2, sensor3, sensor4, sensor5, sensor6, sensor7, sensor8;
 int totalVal = 0;
 int leftTotalVal = 0;
 int rightTotalVal = 0;
-
+/**
+ * 测距模块返回值
+ */
+float volts = 0.3;
+float distance = 100;
 /**
  * 电子罗盘对象
  */
@@ -71,7 +76,10 @@ HMC5883L compass;
  * 获取小车距离障碍的距离
  */
 int getDist() {
-    return 0;
+    volts = analogRead(A0)*0.00469727;
+//  volts = analogRead(A0)*0.0048828125;
+    distance = 6*pow(volts, -1.228);
+    return distance;
 }
 
 /**
@@ -376,7 +384,7 @@ void setup() {
     pinMode(Sensor8,INPUT);
 
     // 电子罗盘初始化 传感器连接后打开该代码
-//    compassSetup();
+    compassSetup();
 
     pinMode(A0, INPUT);
 
@@ -388,6 +396,7 @@ void setup() {
  */
 void loop() {
     sensorRead();
+    getDist();
 
     totalVal = sensor1 + sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 + sensor8;
     leftTotalVal = sensor5 + sensor6 + sensor7 + sensor8;
@@ -398,6 +407,12 @@ void loop() {
     checkTurnLeft();
 
     checkTurnRight();
+
+    if(distance < MIN_DIST) {
+      Serial.print("distance:");
+      Serial.println(distance);
+      //runAround();
+    }
 
     tracking();
 }
@@ -476,7 +491,7 @@ void loop12() {
 /**
  * 测试传感器读值
  */
-void loop4() {
+void loop11() {
     sensorRead();
     printSensor();
 }
