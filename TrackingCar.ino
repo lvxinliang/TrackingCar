@@ -71,6 +71,10 @@ float distance = 100;
  * 电子罗盘对象
  */
 HMC5883L compass;
+/**
+ * 固定角度转向最大误差
+ */
+const int MAX_TURN_ERROR = 5;
     
 /**
  * 获取小车距离障碍的距离
@@ -205,6 +209,92 @@ void runAround() {
     // 向前
     setMotor(210,210);
     delay(1000);
+}
+/**
+ * 右转一些
+ */
+void turnRightLittle() {
+    setMotor(210,-210);
+    delay(10);
+    setMotor(0,0);
+}
+/**
+ * 左转一些
+ */
+void turnLeftLittle() {
+    setMotor(-210,210);
+    delay(10);
+    setMotor(0,0);
+}
+/**
+ * 顺时针转angle°
+ */
+void turnClockwise(int angle){
+    double val = getCompassDegress();
+    double targetVal = val + angle;
+    boolean isCarry = false; // 表示经过一圈,经过北极
+    if(targetVal > 360) {
+      targetVal -= 360;
+      isCarry = true;
+    }
+    double tmp = 0.0;
+    while(true) {
+      tmp = getCompassDegress();
+      if(!isCarry) {
+        if(targetVal - tmp > MAX_TURN_ERROR){
+          turnRightLittle();
+        }else if(tmp - targetVal > MAX_TURN_ERROR) {
+          turnLeftLittle();
+        }else{
+          break;
+        }
+      }else{
+        if(tmp > targetVal && 360 - tmp + targetVal > MAX_TURN_ERROR) {
+          turnRightLittle();
+        }else if(targetVal > tmp && targetVal - tmp > MAX_TURN_ERROR){
+          turnRightLittle();
+        }else{
+          break;
+        }
+      }
+    }
+}
+/**
+ * 逆时针转angle°
+ */
+void turnAnticlockwise(int angle) {
+    double val = getCompassDegress();
+    double targetVal = val - angle;
+    boolean isCarry = false; // 表示经过一圈,经过北极
+    if(targetVal < 0) {
+      targetVal += 360;
+      isCarry = true;
+    }
+    double tmp = 0.0;
+    while(true) {
+      tmp = getCompassDegress();
+      if(!isCarry) {
+        if(targetVal - tmp < -MAX_TURN_ERROR){
+          // 逆时针转
+          turnLeftLittle();
+        }else if(targetVal - tmp > MAX_TURN_ERROR) {
+          // 顺时针转
+          turnRightLittle();
+        }else {
+          break;
+        }
+      }else{
+        if(targetVal > tmp && 360 - targetVal + tmp > MAX_TURN_ERROR) {
+          // 逆时针
+          turnLeftLittle();
+        }else if(targetVal < tmp &&targetVal - tmp < -MAX_TURN_ERROR){
+          // 逆时针
+          turnLeftLittle();
+        }else{
+          break;
+        }
+      }
+    }
 }
 
 /**
@@ -394,7 +484,7 @@ void setup() {
 /**
  * 循环体,主函数
  */
-void loop() {
+void loop1() {
     sensorRead();
     getDist();
 
@@ -408,7 +498,7 @@ void loop() {
 
     checkTurnRight();
 
-    if(distance < MIN_DIST) {
+    if(distance > MIN_DIST) {
       Serial.print("distance:");
       Serial.println(distance);
       //runAround();
@@ -500,5 +590,12 @@ void loop3() {
     int val = analogRead(A0);
     Serial.print("A0:");
     Serial.println(val);
+}
+
+void loop() {
+  turnAnticlockwise(90);
+  delay(2000);
+  turnClockwise(90);
+  while(true);
 }
 
