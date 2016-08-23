@@ -27,7 +27,7 @@ const int DELAY_TIME = 250;
 /**
  * 小车距离前方小于MIN_DIST 表示有障碍
  */
-const int MIN_DIST = 10;
+const int MIN_DIST = 7;
 /**
  * 当连续发现HAS_WALL_CNT次表示遇到墙，非干扰
  */
@@ -196,7 +196,7 @@ void printHeadingDegrees(double headingDegrees) {
 void turnLeft90() {
     setMotor(-255,255);
     Serial.println("turnL50");
-    delay(418);
+    delay(450);
     setMotor(0,0);
     delay(10);
   
@@ -205,7 +205,7 @@ void turnLeft90() {
 void turnRight90(){
     setMotor(255,-255);
     Serial.println("turnR50");
-    delay(418);
+    delay(450);
     setMotor(0,0);
     delay(10);
 }
@@ -223,7 +223,7 @@ void runAround() {
     turnRight90();
     // 向前
     setMotor(255,255);
-    delay(899);
+    delay(800);
     // 向右
     turnRight90();
     // 向前
@@ -231,7 +231,6 @@ void runAround() {
     delay(500);
     // 向左
     turnLeft90();
-    setMotor(0,0);
 }
 /**
  * 右转一些
@@ -395,7 +394,7 @@ void checkTurnLeft() {
         delayAndCheckBack();
         Serial.println("checkTurnLeft");
         setMotor(-200,200);
-        delay(300);
+        delay(400);
         while(true) {
           sensorRead();
           if(sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 == 5){
@@ -418,7 +417,7 @@ void checkTurnRight() {
         delayAndCheckBack();
         Serial.println("checkTurnRight");
         setMotor(200,-200);
-        delay(300);
+        delay(400);
         while(true) {
           sensorRead();
           if(sensor2 + sensor3 + sensor4 + sensor5 + sensor6 + sensor7 == 5){
@@ -437,39 +436,39 @@ void checkTurnRight() {
 void tracking() {
     if(sensor1 == BLACK){
       Serial.println("turn1R");
-      setMotor(200, -200);
-      delayMicroseconds(32);
+      setMotor(255, -255);
+      delayMicroseconds(40);
     } else if(sensor2 == BLACK){
       Serial.println("turn2R");
-      setMotor(150, -150);
-      delayMicroseconds(16);
+      setMotor(255, -255);
+      delayMicroseconds(30);
     } else if(sensor3 == BLACK) {
       Serial.println("turn3R");
-      setMotor(100, -100);
-      delayMicroseconds(6);
-    } /*else if(sensor4 == BLACK) {
+      setMotor(255, -255);
+      delayMicroseconds(20);
+    } else if(sensor4 == BLACK) {
       Serial.println("turn4R");
-      setMotor(200, -200);
-      delayMicroseconds(4);
+      setMotor(255, -255);
+      delayMicroseconds(10);
     } else if(sensor5 == BLACK) {
       Serial.println("turn5L");
-      setMotor(-200,200);
-      delayMicroseconds(4);
-    }*/ else if(sensor6 == BLACK) {
+      setMotor(-255,255);
+      delayMicroseconds(10);
+    } else if(sensor6 == BLACK) {
       Serial.println("turn6L");
-      setMotor(-100, 100);
-      delayMicroseconds(6);
+      setMotor(-255, 255);
+      delayMicroseconds(20);
     } else if(sensor7 == BLACK) {
       Serial.println("turn7L");
-      setMotor(-150,150);
-      delayMicroseconds(16);
+      setMotor(-255,255);
+      delayMicroseconds(30);
     } else if(sensor8 == BLACK) {
       Serial.println("turn8L");
-      setMotor(-200,200);
-      delayMicroseconds(32);
+      setMotor(-255,255);
+      delayMicroseconds(40);
     } else {
       //Serial.println("Forward");
-      setMotor(140,140);
+      setMotor(255,255);
       delayMicroseconds(1);
     }
 }
@@ -532,13 +531,11 @@ void loop() {
     checkTurnLeft();
 
     checkTurnRight();
-
+//
     if(hasWall) {
-//      runAround();
-      setMotor(0, 0);
-      while(true) {
-        delay(1000);
-      }
+      Serial.println("hasWall");
+      runAround();
+//      setMotor(0, 0);
     }
     tracking();
 }
@@ -548,9 +545,9 @@ void loop() {
 /**
  * 测试避障碍 
  */
-void loop71() {
+void loop878() {
     checkWall();
-    setMotor(200, 200);
+    setMotor(255, 255);
     if(hasWall) {
       Serial.println("runAround");
       runAround();
@@ -579,7 +576,7 @@ void loop5() {
 /**
  * 测试电机
  */
-void loop82(){
+void loop92(){
 //    前进
     setMotor(255,255);
     Serial.println("Forward");
@@ -625,7 +622,7 @@ void loop83(){
 /**
  * 测试测距
  */
-void loop2345() {
+void loop71() {
     setMotor(255,255);
     delay(50);
     int dist = getDist();
