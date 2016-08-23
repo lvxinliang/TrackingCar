@@ -1,35 +1,26 @@
 # TrackingCar
 
-1. 使用三轮差数转向
+1. 使用差速转向
 2. 通过电子罗盘控制旋转角度
-3. 通过超声波测距区分桥和墙
-3. 使用多通道灰度传感器进行寻线
+3. 通过夏普红外测距测量小车到障碍物的距离
+4. 使用多通道灰度传感器进行寻线
 
 ## 材料准备
 1. Arduino Uno
-2. Arduino Motor Shield
+2. Arduino 引脚扩展板
 3. SEN2020 8通道选线模块
 4. 4轮小车底盘
+5. 电机驱动模块
+6. 光耦隔离板
+7. 电子罗盘模块
+8. 夏普红外测距模块 GP2Y0A41SK0F
+9. 4节18620锂电池
+10. 若干杜邦线、导线、2个电池盒
 
 ## 注意事项
-1. 电池选择, 选择续航好的航模电池
-2. 小车后轮驱动，这样可以预留出小车的转弯半径
+1. 灰度传感器需要使用串口配置
+2. 小车使用380电机，300RPM，提高370电机提高爬坡能力
 3. 电子罗盘安装远离磁场，比如电机
 
 ## 参考场地
 ![image](https://github.com/lvxinliang/TrackingCar/blob/master/doc/area.png?raw=true)
-
-## 连线参考
-巡线传感器
-```
-int Sensor1 = 2;
-int Sensor2 = 4;
-int Sensor3 = 5;
-int Sensor4 = 6;
-int Sensor5 = 7;
-int Sensor6 = 16;
-int Sensor7 = 17;
-int Sensor8 = 18;
-```
-
-
